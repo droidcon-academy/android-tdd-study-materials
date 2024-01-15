@@ -30,6 +30,21 @@ class LoadWeatherTest {
         assertThat(result).isEqualTo(weatherInRotterdam)
     }
 
+    @Test
+    fun weatherAvailableForAnotherCity() {
+        val berlin = "Berlin"
+        val weatherInBerlin = aWeatherData()
+            .withCity(berlin)
+            .withCountry("Germany")
+            .withTemperature(22)
+            .build()
+        val weatherViewModel = WeatherViewModel()
+
+        val result = weatherViewModel.fetchWeatherFor(berlin)
+
+        assertThat(result).isEqualTo(weatherInBerlin)
+    }
+
     class WeatherViewModel {
 
         fun fetchWeatherFor(location: String): WeatherData {
@@ -39,6 +54,16 @@ class LoadWeatherTest {
                     "",
                     "",
                     20,
+                    "",
+                    "",
+                    0
+                )
+            } else if (location == "Berlin") {
+                return WeatherData(
+                    "Berlin",
+                    "Germany",
+                    "",
+                    22,
                     "",
                     "",
                     0
