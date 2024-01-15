@@ -10,17 +10,24 @@ import org.junit.jupiter.api.Test
 
 class LoadWeatherTest {
 
+    private val rotterdam = "Rotterdam"
+    private val berlin = "Berlin"
+    private val london = "London"
+    private val weatherInRotterdam = aWeatherData()
+        .withCity(rotterdam)
+        .withTemperature(20)
+        .build()
+    private val weatherInBerlin = aWeatherData()
+        .withCity(berlin)
+        .withCountry("Germany")
+        .withTemperature(22)
+        .build()
+    private val weatherNotAvailable = null
+
     @Test
     fun noWeatherAvailable() {
         val location = "location"
-        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(
-            mutableMapOf(
-                "Rotterdam" to WeatherData("Rotterdam", "", "", 20, "", "", 0),
-                "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0),
-                "London" to null
-            )
-        )
-        )
+        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(emptyMap()))
 
         weatherViewModel.fetchWeatherFor(location)
 
@@ -30,19 +37,12 @@ class LoadWeatherTest {
 
     @Test
     fun weatherAvailable() {
-        val rotterdam = "Rotterdam"
-        val weatherInRotterdam = aWeatherData()
-            .withCity("Rotterdam")
-            .withTemperature(20)
-            .build()
-        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(
-            mutableMapOf(
-                "Rotterdam" to WeatherData("Rotterdam", "", "", 20, "", "", 0),
-                "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0),
-                "London" to null
-            )
+        val weatherForLocation = mutableMapOf(
+            rotterdam to weatherInRotterdam,
+            berlin to weatherInBerlin,
+            london to weatherNotAvailable
         )
-        )
+        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(weatherForLocation))
 
         weatherViewModel.fetchWeatherFor(rotterdam)
 
@@ -52,20 +52,12 @@ class LoadWeatherTest {
 
     @Test
     fun weatherAvailableForAnotherCity() {
-        val berlin = "Berlin"
-        val weatherInBerlin = aWeatherData()
-            .withCity(berlin)
-            .withCountry("Germany")
-            .withTemperature(22)
-            .build()
-        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(
-            mutableMapOf(
-                "Rotterdam" to WeatherData("Rotterdam", "", "", 20, "", "", 0),
-                "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0),
-                "London" to null
-            )
+        val weatherForLocation = mutableMapOf(
+            rotterdam to weatherInRotterdam,
+            berlin to weatherInBerlin,
+            london to weatherNotAvailable
         )
-        )
+        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(weatherForLocation))
 
         weatherViewModel.fetchWeatherFor(berlin)
 
@@ -75,17 +67,14 @@ class LoadWeatherTest {
 
     @Test
     fun errorLoadingWeather() {
-        val location = "London"
-        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(
-            mutableMapOf(
-                "Rotterdam" to WeatherData("Rotterdam", "", "", 20, "", "", 0),
-                "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0),
-                "London" to null
-            )
+        val weatherForLocation = mutableMapOf(
+            rotterdam to weatherInRotterdam,
+            berlin to weatherInBerlin,
+            london to weatherNotAvailable
         )
-        )
+        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(weatherForLocation))
 
-        weatherViewModel.fetchWeatherFor(location)
+        weatherViewModel.fetchWeatherFor(london)
 
         assertThat(weatherViewModel.uiState.value)
             .isEqualTo(WeatherScreenState(isWeatherLoadingError = true))
@@ -130,7 +119,7 @@ class LoadWeatherTest {
     )
 
     class InMemoryWeatherRepository(
-        private val weatherForLocation: MutableMap<String, WeatherData?>
+        private val weatherForLocation: Map<String, WeatherData?>
     ) {
 
         fun loadWeatherFor(location: String): WeatherResult {
