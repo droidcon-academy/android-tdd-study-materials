@@ -9,13 +9,16 @@ class LoadWeatherTest {
     fun noWeatherAvailable() {
         val location = "location"
 
-        val result = fetchWeatherFor(location)
+        val result = WeatherViewModel().fetchWeatherFor(location)
 
         assertThat(result).isEqualTo(WeatherData.Empty)
     }
 
-    private fun fetchWeatherFor(location: String): WeatherData {
-        return WeatherData.Empty
+    class WeatherViewModel {
+
+        fun fetchWeatherFor(location: String): WeatherData {
+            return WeatherData.Empty
+        }
     }
 
     data class WeatherData(
