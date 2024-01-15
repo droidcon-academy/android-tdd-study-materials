@@ -64,6 +64,8 @@ class LoadWeatherTest {
         val result = weatherViewModel.fetchWeatherFor(location)
 
         assertThat(result).isEqualTo(weatherLoadingError)
+        assertThat(weatherViewModel.uiState.value)
+            .isEqualTo(WeatherScreenState(isWeatherLoadingError = true))
     }
 
     class WeatherViewModel {
@@ -86,12 +88,18 @@ class LoadWeatherTest {
                 _uiState.update { it.copy(isWeatherUnavailable = true) }
                 WeatherData.Empty
             }
-            return if (result == null) WeatherResult.Error else WeatherResult.Loaded(result)
+            return if (result == null) {
+                _uiState.update { it.copy(isWeatherLoadingError = true) }
+                WeatherResult.Error
+            } else {
+                WeatherResult.Loaded(result)
+            }
         }
     }
 
     data class WeatherScreenState(
         val isWeatherUnavailable: Boolean = false,
+        val isWeatherLoadingError: Boolean = false,
         val weatherData: WeatherData = WeatherData.Empty
     )
 
