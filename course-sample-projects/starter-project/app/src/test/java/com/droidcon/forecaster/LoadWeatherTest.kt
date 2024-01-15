@@ -52,7 +52,7 @@ class LoadWeatherTest {
                 "Rotterdam" to WeatherData("Rotterdam", "", "", 20, "", "", 0),
                 "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0)
             )
-            if (location == "Rotterdam" || location == "Berlin") {
+            if (weatherForLocation.containsKey(location)) {
                 return weatherForLocation.getValue(location)
             }
             return WeatherData.Empty
