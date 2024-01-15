@@ -2,7 +2,6 @@ package com.droidcon.forecaster
 
 import com.droidcon.forecaster.WeatherDataBuilder.Companion.aWeatherData
 import com.google.common.truth.Truth.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class LoadWeatherTest {
@@ -47,11 +46,10 @@ class LoadWeatherTest {
     }
 
     @Test
-    @Disabled("We need to introduce a new type")
     fun errorLoadingWeather() {
         val location = "London"
         val weatherViewModel = WeatherViewModel()
-        val weatherLoadingError = null
+        val weatherLoadingError = WeatherResult.Error
 
         val result = weatherViewModel.fetchWeatherFor(location)
 
@@ -62,20 +60,22 @@ class LoadWeatherTest {
 
         private val weatherForLocation = mutableMapOf(
             "Rotterdam" to WeatherData("Rotterdam", "", "", 20, "", "", 0),
-            "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0)
+            "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0),
+            "London" to null
         )
 
         fun fetchWeatherFor(location: String): WeatherResult {
             val result = if (weatherForLocation.containsKey(location)) {
-                weatherForLocation.getValue(location)
+                weatherForLocation[location]
             } else {
                 WeatherData.Empty
             }
-            return WeatherResult.Loaded(result)
+            return if (result == null) WeatherResult.Error else WeatherResult.Loaded(result)
         }
     }
 
     sealed class WeatherResult {
+        object Error : WeatherResult()
 
         data class Loaded(val data: WeatherData) : WeatherResult()
     }
