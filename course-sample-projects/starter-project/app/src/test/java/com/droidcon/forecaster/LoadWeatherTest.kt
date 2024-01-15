@@ -74,20 +74,20 @@ class LoadWeatherTest {
             "London" to null
         )
 
-        fun fetchWeatherFor(location: String): WeatherResult {
-            val result = if (weatherForLocation.containsKey(location)) {
-                val weatherData = weatherForLocation[location]
-                weatherData?.let { data -> _uiState.update { it.copy(weatherData = data) } }
-                weatherData
-            } else {
-                _uiState.update { it.copy(isWeatherUnavailable = true) }
-                WeatherData.Empty
+        fun fetchWeatherFor(location: String) {
+            when (val weatherResult = loadWeatherFor(location)) {
+                is WeatherResult.Unavailable -> _uiState.update { it.copy(isWeatherUnavailable = true) }
+                is WeatherResult.Error -> _uiState.update { it.copy(isWeatherLoadingError = true) }
+                is WeatherResult.Loaded -> _uiState.update { it.copy(weatherData = weatherResult.data) }
             }
-            return if (result == null) {
-                _uiState.update { it.copy(isWeatherLoadingError = true) }
-                WeatherResult.Error
+        }
+
+        private fun loadWeatherFor(location: String): WeatherResult {
+            return if (weatherForLocation.containsKey(location)) {
+                val weatherData = weatherForLocation[location]
+                if (weatherData == null) WeatherResult.Error else WeatherResult.Loaded(weatherData)
             } else {
-                WeatherResult.Loaded(result)
+                WeatherResult.Unavailable
             }
         }
     }
@@ -100,6 +100,8 @@ class LoadWeatherTest {
 
     sealed class WeatherResult {
         object Error : WeatherResult()
+
+        object Unavailable : WeatherResult()
 
         data class Loaded(val data: WeatherData) : WeatherResult()
     }
