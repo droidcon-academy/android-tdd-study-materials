@@ -34,6 +34,8 @@ class LoadWeatherTest {
         val result = weatherViewModel.fetchWeatherFor(rotterdam)
 
         assertThat(result).isEqualTo(WeatherResult.Loaded(weatherInRotterdam))
+        assertThat(weatherViewModel.uiState.value)
+            .isEqualTo(WeatherScreenState(weatherData = weatherInRotterdam))
     }
 
     @Test
@@ -49,6 +51,8 @@ class LoadWeatherTest {
         val result = weatherViewModel.fetchWeatherFor(berlin)
 
         assertThat(result).isEqualTo(WeatherResult.Loaded(weatherInBerlin))
+        assertThat(weatherViewModel.uiState.value)
+            .isEqualTo(WeatherScreenState(weatherData = weatherInBerlin))
     }
 
     @Test
@@ -75,7 +79,9 @@ class LoadWeatherTest {
 
         fun fetchWeatherFor(location: String): WeatherResult {
             val result = if (weatherForLocation.containsKey(location)) {
-                weatherForLocation[location]
+                val weatherData = weatherForLocation[location]
+                weatherData?.let { data -> _uiState.update { it.copy(weatherData = data) } }
+                weatherData
             } else {
                 _uiState.update { it.copy(isWeatherUnavailable = true) }
                 WeatherData.Empty
@@ -85,7 +91,8 @@ class LoadWeatherTest {
     }
 
     data class WeatherScreenState(
-        val isWeatherUnavailable: Boolean = false
+        val isWeatherUnavailable: Boolean = false,
+        val weatherData: WeatherData = WeatherData.Empty
     )
 
     sealed class WeatherResult {
