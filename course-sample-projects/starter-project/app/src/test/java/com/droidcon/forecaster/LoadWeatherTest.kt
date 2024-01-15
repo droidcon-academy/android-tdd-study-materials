@@ -47,11 +47,12 @@ class LoadWeatherTest {
 
     class WeatherViewModel {
 
+        private val weatherForLocation = mutableMapOf(
+            "Rotterdam" to WeatherData("Rotterdam", "", "", 20, "", "", 0),
+            "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0)
+        )
+
         fun fetchWeatherFor(location: String): WeatherData {
-            val weatherForLocation = mutableMapOf(
-                "Rotterdam" to WeatherData("Rotterdam", "", "", 20, "", "", 0),
-                "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0)
-            )
             if (weatherForLocation.containsKey(location)) {
                 return weatherForLocation.getValue(location)
             }
