@@ -1,5 +1,7 @@
 package com.droidcon.forecaster
 
+import com.droidcon.forecaster.data.WeatherData
+
 class WeatherDataBuilder {
 
     private var city: String = ""
@@ -38,8 +40,8 @@ class WeatherDataBuilder {
         this.feelsLike = feelsLike
     }
 
-    fun build(): LoadWeatherTest.WeatherData {
-        return LoadWeatherTest.WeatherData(
+    fun build(): WeatherData {
+        return WeatherData(
             city,
             country,
             region,

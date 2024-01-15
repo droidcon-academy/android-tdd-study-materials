@@ -1,11 +1,8 @@
 package com.droidcon.forecaster
 
 import com.droidcon.forecaster.WeatherDataBuilder.Companion.aWeatherData
+import com.droidcon.forecaster.state.WeatherScreenState
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import org.junit.jupiter.api.Test
 
 class LoadWeatherTest {
@@ -78,57 +75,5 @@ class LoadWeatherTest {
 
         assertThat(weatherViewModel.uiState.value)
             .isEqualTo(WeatherScreenState(isWeatherLoadingError = true))
-    }
-
-    class WeatherViewModel(private val weatherRepository: InMemoryWeatherRepository) {
-
-        private val _uiState = MutableStateFlow(WeatherScreenState())
-        val uiState: StateFlow<WeatherScreenState> = _uiState.asStateFlow()
-
-        fun fetchWeatherFor(location: String) {
-            when (val weatherResult = weatherRepository.loadWeatherFor(location)) {
-                is WeatherResult.Unavailable -> _uiState.update { it.copy(isWeatherUnavailable = true) }
-                is WeatherResult.Error -> _uiState.update { it.copy(isWeatherLoadingError = true) }
-                is WeatherResult.Loaded -> _uiState.update { it.copy(weatherData = weatherResult.data) }
-            }
-        }
-    }
-
-    data class WeatherScreenState(
-        val isWeatherUnavailable: Boolean = false,
-        val isWeatherLoadingError: Boolean = false,
-        val weatherData: WeatherData? = null
-    )
-
-    sealed class WeatherResult {
-        object Error : WeatherResult()
-
-        object Unavailable : WeatherResult()
-
-        data class Loaded(val data: WeatherData) : WeatherResult()
-    }
-
-    data class WeatherData(
-        val city: String,
-        val country: String,
-        val region: String,
-        val temperature: Int,
-        val iconUrl: String,
-        val description: String,
-        val feelsLike: Int
-    )
-
-    class InMemoryWeatherRepository(
-        private val weatherForLocation: Map<String, WeatherData?>
-    ) {
-
-        fun loadWeatherFor(location: String): WeatherResult {
-            return if (weatherForLocation.containsKey(location)) {
-                val weatherData = weatherForLocation[location]
-                if (weatherData == null) WeatherResult.Error else WeatherResult.Loaded(weatherData)
-            } else {
-                WeatherResult.Unavailable
-            }
-        }
     }
 }
