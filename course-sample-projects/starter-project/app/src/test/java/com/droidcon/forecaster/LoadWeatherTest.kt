@@ -15,9 +15,8 @@ class LoadWeatherTest {
         val location = "location"
         val weatherViewModel = WeatherViewModel()
 
-        val result = weatherViewModel.fetchWeatherFor(location)
+        weatherViewModel.fetchWeatherFor(location)
 
-        assertThat(result).isEqualTo(WeatherResult.Loaded(WeatherData.Empty))
         assertThat(weatherViewModel.uiState.value)
             .isEqualTo(WeatherScreenState(isWeatherUnavailable = true))
     }
@@ -31,9 +30,8 @@ class LoadWeatherTest {
             .build()
         val weatherViewModel = WeatherViewModel()
 
-        val result = weatherViewModel.fetchWeatherFor(rotterdam)
+        weatherViewModel.fetchWeatherFor(rotterdam)
 
-        assertThat(result).isEqualTo(WeatherResult.Loaded(weatherInRotterdam))
         assertThat(weatherViewModel.uiState.value)
             .isEqualTo(WeatherScreenState(weatherData = weatherInRotterdam))
     }
@@ -48,9 +46,8 @@ class LoadWeatherTest {
             .build()
         val weatherViewModel = WeatherViewModel()
 
-        val result = weatherViewModel.fetchWeatherFor(berlin)
+        weatherViewModel.fetchWeatherFor(berlin)
 
-        assertThat(result).isEqualTo(WeatherResult.Loaded(weatherInBerlin))
         assertThat(weatherViewModel.uiState.value)
             .isEqualTo(WeatherScreenState(weatherData = weatherInBerlin))
     }
@@ -59,11 +56,9 @@ class LoadWeatherTest {
     fun errorLoadingWeather() {
         val location = "London"
         val weatherViewModel = WeatherViewModel()
-        val weatherLoadingError = WeatherResult.Error
 
-        val result = weatherViewModel.fetchWeatherFor(location)
+        weatherViewModel.fetchWeatherFor(location)
 
-        assertThat(result).isEqualTo(weatherLoadingError)
         assertThat(weatherViewModel.uiState.value)
             .isEqualTo(WeatherScreenState(isWeatherLoadingError = true))
     }
