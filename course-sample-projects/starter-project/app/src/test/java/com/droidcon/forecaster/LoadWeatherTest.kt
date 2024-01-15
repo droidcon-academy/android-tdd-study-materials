@@ -2,6 +2,10 @@ package com.droidcon.forecaster
 
 import com.droidcon.forecaster.WeatherDataBuilder.Companion.aWeatherData
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import org.junit.jupiter.api.Test
 
 class LoadWeatherTest {
@@ -14,6 +18,8 @@ class LoadWeatherTest {
         val result = weatherViewModel.fetchWeatherFor(location)
 
         assertThat(result).isEqualTo(WeatherResult.Loaded(WeatherData.Empty))
+        assertThat(weatherViewModel.uiState.value)
+            .isEqualTo(WeatherScreenState(isWeatherUnavailable = true))
     }
 
     @Test
@@ -58,6 +64,9 @@ class LoadWeatherTest {
 
     class WeatherViewModel {
 
+        private val _uiState = MutableStateFlow(WeatherScreenState())
+        val uiState: StateFlow<WeatherScreenState> = _uiState.asStateFlow()
+
         private val weatherForLocation = mutableMapOf(
             "Rotterdam" to WeatherData("Rotterdam", "", "", 20, "", "", 0),
             "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0),
@@ -68,11 +77,16 @@ class LoadWeatherTest {
             val result = if (weatherForLocation.containsKey(location)) {
                 weatherForLocation[location]
             } else {
+                _uiState.update { it.copy(isWeatherUnavailable = true) }
                 WeatherData.Empty
             }
             return if (result == null) WeatherResult.Error else WeatherResult.Loaded(result)
         }
     }
+
+    data class WeatherScreenState(
+        val isWeatherUnavailable: Boolean = false
+    )
 
     sealed class WeatherResult {
         object Error : WeatherResult()
