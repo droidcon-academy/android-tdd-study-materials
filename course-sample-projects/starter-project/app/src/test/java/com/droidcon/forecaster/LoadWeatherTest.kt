@@ -8,8 +8,9 @@ class LoadWeatherTest {
     @Test
     fun noWeatherAvailable() {
         val location = "location"
+        val weatherViewModel = WeatherViewModel()
 
-        val result = WeatherViewModel().fetchWeatherFor(location)
+        val result = weatherViewModel.fetchWeatherFor(location)
 
         assertThat(result).isEqualTo(WeatherData.Empty)
     }
