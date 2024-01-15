@@ -108,7 +108,7 @@ class LoadWeatherTest {
     data class WeatherScreenState(
         val isWeatherUnavailable: Boolean = false,
         val isWeatherLoadingError: Boolean = false,
-        val weatherData: WeatherData = WeatherData.Empty
+        val weatherData: WeatherData? = null
     )
 
     sealed class WeatherResult {
@@ -127,20 +127,7 @@ class LoadWeatherTest {
         val iconUrl: String,
         val description: String,
         val feelsLike: Int
-    ) {
-
-        companion object {
-            val Empty = WeatherData(
-                city = "",
-                country = "",
-                region = "",
-                temperature = 0,
-                iconUrl = "",
-                description = "",
-                feelsLike = 0
-            )
-        }
-    }
+    )
 
     class InMemoryWeatherRepository(
         private val weatherForLocation: MutableMap<String, WeatherData?>
