@@ -2,6 +2,7 @@ package com.droidcon.forecaster
 
 import com.droidcon.forecaster.WeatherDataBuilder.Companion.aWeatherData
 import com.google.common.truth.Truth.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class LoadWeatherTest {
@@ -13,7 +14,7 @@ class LoadWeatherTest {
 
         val result = weatherViewModel.fetchWeatherFor(location)
 
-        assertThat(result).isEqualTo(WeatherData.Empty)
+        assertThat(result).isEqualTo(WeatherResult.Loaded(WeatherData.Empty))
     }
 
     @Test
@@ -27,7 +28,7 @@ class LoadWeatherTest {
 
         val result = weatherViewModel.fetchWeatherFor(rotterdam)
 
-        assertThat(result).isEqualTo(weatherInRotterdam)
+        assertThat(result).isEqualTo(WeatherResult.Loaded(weatherInRotterdam))
     }
 
     @Test
@@ -42,7 +43,19 @@ class LoadWeatherTest {
 
         val result = weatherViewModel.fetchWeatherFor(berlin)
 
-        assertThat(result).isEqualTo(weatherInBerlin)
+        assertThat(result).isEqualTo(WeatherResult.Loaded(weatherInBerlin))
+    }
+
+    @Test
+    @Disabled("We need to introduce a new type")
+    fun errorLoadingWeather() {
+        val location = "London"
+        val weatherViewModel = WeatherViewModel()
+        val weatherLoadingError = null
+
+        val result = weatherViewModel.fetchWeatherFor(location)
+
+        assertThat(result).isEqualTo(weatherLoadingError)
     }
 
     class WeatherViewModel {
@@ -52,12 +65,19 @@ class LoadWeatherTest {
             "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0)
         )
 
-        fun fetchWeatherFor(location: String): WeatherData {
-            if (weatherForLocation.containsKey(location)) {
-                return weatherForLocation.getValue(location)
+        fun fetchWeatherFor(location: String): WeatherResult {
+            val result = if (weatherForLocation.containsKey(location)) {
+                weatherForLocation.getValue(location)
+            } else {
+                WeatherData.Empty
             }
-            return WeatherData.Empty
+            return WeatherResult.Loaded(result)
         }
+    }
+
+    sealed class WeatherResult {
+
+        data class Loaded(val data: WeatherData) : WeatherResult()
     }
 
     data class WeatherData(
