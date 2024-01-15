@@ -7,20 +7,23 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-class WeatherViewModel(private val weatherRepository: WeatherRepository) {
+class WeatherViewModel(
+    private val weatherRepository: WeatherRepository,
+    private val queryLengthValidator: QueryLengthValidator
+) {
 
     private val _uiState = MutableStateFlow(WeatherScreenState())
     val uiState: StateFlow<WeatherScreenState> = _uiState.asStateFlow()
 
     fun fetchWeatherFor(location: String) {
-        if (location.trim().length < 3) {
-            _uiState.update { it.copy(isBadQuery = true) }
-        } else {
+        if (queryLengthValidator.isValidQuery(location)) {
             when (val weatherResult = weatherRepository.loadWeatherFor(location)) {
                 is WeatherResult.Unavailable -> _uiState.update { it.copy(isWeatherUnavailable = true) }
                 is WeatherResult.Error -> _uiState.update { it.copy(isWeatherLoadingError = true) }
                 is WeatherResult.Loaded -> _uiState.update { it.copy(weatherData = weatherResult.data) }
             }
+        } else {
+            _uiState.update { it.copy(isBadQuery = true) }
         }
     }
 }

@@ -21,10 +21,15 @@ class LoadWeatherTest {
         .build()
     private val weatherNotAvailable = null
 
+    private val queryLengthValidator = QueryLengthValidator()
+
     @Test
     fun noWeatherAvailable() {
         val location = "location"
-        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(emptyMap()))
+        val weatherViewModel = WeatherViewModel(
+            InMemoryWeatherRepository(emptyMap()),
+            queryLengthValidator
+        )
 
         weatherViewModel.fetchWeatherFor(location)
 
@@ -39,7 +44,10 @@ class LoadWeatherTest {
             berlin to weatherInBerlin,
             london to weatherNotAvailable
         )
-        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(weatherForLocation))
+        val weatherViewModel = WeatherViewModel(
+            InMemoryWeatherRepository(weatherForLocation),
+            queryLengthValidator
+        )
 
         weatherViewModel.fetchWeatherFor(rotterdam)
 
@@ -54,7 +62,10 @@ class LoadWeatherTest {
             berlin to weatherInBerlin,
             london to weatherNotAvailable
         )
-        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(weatherForLocation))
+        val weatherViewModel = WeatherViewModel(
+            InMemoryWeatherRepository(weatherForLocation),
+            queryLengthValidator
+        )
 
         weatherViewModel.fetchWeatherFor(berlin)
 
@@ -69,7 +80,10 @@ class LoadWeatherTest {
             berlin to weatherInBerlin,
             london to weatherNotAvailable
         )
-        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(weatherForLocation))
+        val weatherViewModel = WeatherViewModel(
+            InMemoryWeatherRepository(weatherForLocation),
+            queryLengthValidator
+        )
 
         weatherViewModel.fetchWeatherFor(london)
 

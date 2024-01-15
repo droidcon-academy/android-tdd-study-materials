@@ -7,6 +7,9 @@ import org.junit.jupiter.params.provider.CsvSource
 
 class SearchQueryValidationTest {
 
+    private val queryLengthValidator = QueryLengthValidator()
+    private val weatherRepository = InMemoryWeatherRepository(emptyMap())
+
     @ParameterizedTest
     @CsvSource(
         "''",
@@ -14,7 +17,10 @@ class SearchQueryValidationTest {
         "'     '"
     )
     fun emptyQuery(emptyQuery: String) {
-        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(emptyMap()))
+        val weatherViewModel = WeatherViewModel(
+            weatherRepository,
+            queryLengthValidator
+        )
 
         weatherViewModel.fetchWeatherFor(emptyQuery)
 
@@ -30,7 +36,10 @@ class SearchQueryValidationTest {
         "AB  "
     )
     fun shortQuery(query: String) {
-        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(emptyMap()))
+        val weatherViewModel = WeatherViewModel(
+            weatherRepository,
+            queryLengthValidator
+        )
 
         weatherViewModel.fetchWeatherFor(query)
 
