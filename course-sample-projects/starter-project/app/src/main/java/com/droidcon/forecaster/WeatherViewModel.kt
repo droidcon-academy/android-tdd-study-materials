@@ -13,7 +13,7 @@ class WeatherViewModel(private val weatherRepository: WeatherRepository) {
     val uiState: StateFlow<WeatherScreenState> = _uiState.asStateFlow()
 
     fun fetchWeatherFor(location: String) {
-        if (location.isBlank()) {
+        if (location.trim().length < 3) {
             _uiState.update { it.copy(isBadQuery = true) }
         } else {
             when (val weatherResult = weatherRepository.loadWeatherFor(location)) {

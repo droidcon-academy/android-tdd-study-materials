@@ -21,4 +21,20 @@ class SearchQueryValidationTest {
         assertThat(weatherViewModel.uiState.value)
             .isEqualTo(WeatherScreenState(isBadQuery = true))
     }
+
+    @ParameterizedTest
+    @CsvSource(
+        ".",
+        "AB",
+        " AB ",
+        "AB  "
+    )
+    fun shortQuery(query: String) {
+        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository(emptyMap()))
+
+        weatherViewModel.fetchWeatherFor(query)
+
+        assertThat(weatherViewModel.uiState.value)
+            .isEqualTo(WeatherScreenState(isBadQuery = true))
+    }
 }
