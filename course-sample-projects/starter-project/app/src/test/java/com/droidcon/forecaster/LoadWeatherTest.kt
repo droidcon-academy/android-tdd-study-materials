@@ -13,7 +13,7 @@ class LoadWeatherTest {
     @Test
     fun noWeatherAvailable() {
         val location = "location"
-        val weatherViewModel = WeatherViewModel()
+        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository())
 
         weatherViewModel.fetchWeatherFor(location)
 
@@ -28,7 +28,7 @@ class LoadWeatherTest {
             .withCity("Rotterdam")
             .withTemperature(20)
             .build()
-        val weatherViewModel = WeatherViewModel()
+        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository())
 
         weatherViewModel.fetchWeatherFor(rotterdam)
 
@@ -44,7 +44,7 @@ class LoadWeatherTest {
             .withCountry("Germany")
             .withTemperature(22)
             .build()
-        val weatherViewModel = WeatherViewModel()
+        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository())
 
         weatherViewModel.fetchWeatherFor(berlin)
 
@@ -55,7 +55,7 @@ class LoadWeatherTest {
     @Test
     fun errorLoadingWeather() {
         val location = "London"
-        val weatherViewModel = WeatherViewModel()
+        val weatherViewModel = WeatherViewModel(InMemoryWeatherRepository())
 
         weatherViewModel.fetchWeatherFor(location)
 
@@ -63,31 +63,16 @@ class LoadWeatherTest {
             .isEqualTo(WeatherScreenState(isWeatherLoadingError = true))
     }
 
-    class WeatherViewModel {
+    class WeatherViewModel(private val weatherRepository: InMemoryWeatherRepository) {
 
         private val _uiState = MutableStateFlow(WeatherScreenState())
         val uiState: StateFlow<WeatherScreenState> = _uiState.asStateFlow()
 
-        private val weatherForLocation = mutableMapOf(
-            "Rotterdam" to WeatherData("Rotterdam", "", "", 20, "", "", 0),
-            "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0),
-            "London" to null
-        )
-
         fun fetchWeatherFor(location: String) {
-            when (val weatherResult = loadWeatherFor(location)) {
+            when (val weatherResult = weatherRepository.loadWeatherFor(location)) {
                 is WeatherResult.Unavailable -> _uiState.update { it.copy(isWeatherUnavailable = true) }
                 is WeatherResult.Error -> _uiState.update { it.copy(isWeatherLoadingError = true) }
                 is WeatherResult.Loaded -> _uiState.update { it.copy(weatherData = weatherResult.data) }
-            }
-        }
-
-        private fun loadWeatherFor(location: String): WeatherResult {
-            return if (weatherForLocation.containsKey(location)) {
-                val weatherData = weatherForLocation[location]
-                if (weatherData == null) WeatherResult.Error else WeatherResult.Loaded(weatherData)
-            } else {
-                WeatherResult.Unavailable
             }
         }
     }
@@ -126,6 +111,23 @@ class LoadWeatherTest {
                 description = "",
                 feelsLike = 0
             )
+        }
+    }
+
+    class InMemoryWeatherRepository {
+        private val weatherForLocation = mutableMapOf(
+            "Rotterdam" to WeatherData("Rotterdam", "", "", 20, "", "", 0),
+            "Berlin" to WeatherData("Berlin", "Germany", "", 22, "", "", 0),
+            "London" to null
+        )
+
+        fun loadWeatherFor(location: String): WeatherResult {
+            return if (weatherForLocation.containsKey(location)) {
+                val weatherData = weatherForLocation[location]
+                if (weatherData == null) WeatherResult.Error else WeatherResult.Loaded(weatherData)
+            } else {
+                WeatherResult.Unavailable
+            }
         }
     }
 }
