@@ -28,14 +28,22 @@ class WeatherViewModel(
                 val weatherResult = withContext(backgroundDispatcher) {
                     weatherRepository.loadWeatherFor(location)
                 }
-                when (weatherResult) {
-                    is WeatherResult.Unavailable -> _uiState.update { it.copy(isWeatherUnavailable = true) }
-                    is WeatherResult.Error -> _uiState.update { it.copy(isWeatherLoadingError = true) }
-                    is WeatherResult.Loaded -> _uiState.update { it.copy(weatherData = weatherResult.data) }
-                }
+                updateScreenStateFor(weatherResult)
             }
         } else {
-            _uiState.update { it.copy(isBadQuery = true) }
+            updateScreenStateWithBadQuery()
         }
+    }
+
+    private fun updateScreenStateFor(weatherResult: WeatherResult) {
+        when (weatherResult) {
+            is WeatherResult.Unavailable -> _uiState.update { it.copy(isWeatherUnavailable = true) }
+            is WeatherResult.Error -> _uiState.update { it.copy(isWeatherLoadingError = true) }
+            is WeatherResult.Loaded -> _uiState.update { it.copy(weatherData = weatherResult.data) }
+        }
+    }
+
+    private fun updateScreenStateWithBadQuery() {
+        _uiState.update { it.copy(isBadQuery = true) }
     }
 }
