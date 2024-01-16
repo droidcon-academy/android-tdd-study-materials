@@ -53,17 +53,18 @@ class RemoteWeatherRepositoryTest : WeatherRepositoryContractTest() {
     ) : WeatherRepository {
 
         override suspend fun loadWeatherFor(location: String): WeatherResult {
-            try {
+            return try {
                 val response = weatherApi.fetchWeatherForLocation(location)
                 val weatherData = response.toWeatherData()
-                return WeatherResult.Loaded(weatherData)
+                WeatherResult.Loaded(weatherData)
             } catch (httpException: HttpException) {
                 if (httpException.code() == 404) {
-                    return WeatherResult.Error
+                    WeatherResult.Error
                 } else if (httpException.code() == 400) {
-                    return WeatherResult.Unavailable
+                    WeatherResult.Unavailable
+                } else {
+                    throw httpException
                 }
-                throw httpException
             }
         }
 
@@ -111,15 +112,18 @@ class RemoteWeatherRepositoryTest : WeatherRepositoryContractTest() {
         override fun dispatch(request: RecordedRequest): MockResponse {
             val query = request.requestUrl?.queryParameter("query") ?: ""
             if (!weatherForLocation.containsKey(query)) {
-                return MockResponse().setResponseCode(400)
+                return MockResponse()
+                    .setResponseCode(400)
                     .setBody("""{"error": "backend unavailable"}""")
             }
-            val weatherAtLocation = weatherForLocation[query] ?:
-                return MockResponse().setResponseCode(404)
+            val weatherAtLocation = weatherForLocation[query]
+                ?: return MockResponse()
+                    .setResponseCode(404)
                     .setBody("""{"error": "No data found for $query"}""")
             return MockResponse()
                 .setResponseCode(200)
-                .setBody("""{
+                .setBody(
+                    """{
                     "location": {
                         "name": "${weatherAtLocation.city}",
                         "country": "${weatherAtLocation.country}",
@@ -131,7 +135,8 @@ class RemoteWeatherRepositoryTest : WeatherRepositoryContractTest() {
                         "weather_descriptions": ["${weatherAtLocation.description}"],
                         "feelslike": "${weatherAtLocation.feelsLike}"
                     }
-                }""")
+                }"""
+                )
         }
     }
 }
