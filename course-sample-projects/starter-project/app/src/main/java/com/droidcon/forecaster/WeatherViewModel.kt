@@ -24,6 +24,7 @@ class WeatherViewModel(
 
     fun fetchWeatherFor(location: String) {
         if (queryLengthValidator.isValidQuery(location)) {
+            updateScreenStateWithLoading()
             viewModelScope.launch {
                 val weatherResult = withContext(backgroundDispatcher) {
                     weatherRepository.loadWeatherFor(location)
@@ -35,11 +36,21 @@ class WeatherViewModel(
         }
     }
 
+    private fun updateScreenStateWithLoading() {
+        _uiState.update { it.copy(isLoading = true) }
+    }
+
     private fun updateScreenStateFor(weatherResult: WeatherResult) {
         when (weatherResult) {
-            is WeatherResult.Unavailable -> _uiState.update { it.copy(isWeatherUnavailable = true) }
-            is WeatherResult.Error -> _uiState.update { it.copy(isWeatherLoadingError = true) }
-            is WeatherResult.Loaded -> _uiState.update { it.copy(weatherData = weatherResult.data) }
+            is WeatherResult.Unavailable -> {
+                _uiState.update { it.copy(isLoading = false, isWeatherUnavailable = true) }
+            }
+            is WeatherResult.Error -> {
+                _uiState.update { it.copy(isLoading = false, isWeatherLoadingError = true) }
+            }
+            is WeatherResult.Loaded -> {
+                _uiState.update { it.copy(isLoading = false, weatherData = weatherResult.data) }
+            }
         }
     }
 
