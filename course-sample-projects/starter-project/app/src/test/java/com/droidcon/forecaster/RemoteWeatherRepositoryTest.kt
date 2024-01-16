@@ -44,15 +44,19 @@ class RemoteWeatherRepositoryTest : WeatherRepositoryContractTest() {
 
         override fun dispatch(request: RecordedRequest): MockResponse {
             val query = request.requestUrl?.queryParameter("query") ?: ""
-            if (!weatherForLocation.containsKey(query)) {
-                return MockResponse()
-                    .setResponseCode(400)
-                    .setBody("""{"error": "backend unavailable"}""")
+            if (weatherForLocation.containsKey(query)) {
+                val weatherAtLocation = weatherForLocation[query]
+                    ?: return weatherForLocationUnavailableResponse(query)
+                return weatherResponse(weatherAtLocation)
             }
-            val weatherAtLocation = weatherForLocation[query]
-                ?: return MockResponse()
-                    .setResponseCode(404)
-                    .setBody("""{"error": "No data found for $query"}""")
+            return backendUnavailableResponse()
+        }
+
+        private fun weatherForLocationUnavailableResponse(query: String) = MockResponse()
+            .setResponseCode(404)
+            .setBody("""{"error": "No data found for $query"}""")
+
+        private fun weatherResponse(weatherAtLocation: WeatherData): MockResponse {
             return MockResponse()
                 .setResponseCode(200)
                 .setBody(
@@ -71,5 +75,9 @@ class RemoteWeatherRepositoryTest : WeatherRepositoryContractTest() {
                 }"""
                 )
         }
+
+        private fun backendUnavailableResponse() = MockResponse()
+            .setResponseCode(400)
+            .setBody("""{"error": "backend unavailable"}""")
     }
 }
