@@ -3,8 +3,11 @@ package com.droidcon.forecaster
 import com.droidcon.forecaster.WeatherDataBuilder.Companion.aWeatherData
 import com.droidcon.forecaster.state.WeatherScreenState
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.Dispatchers
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(CoroutinesTestExtension::class)
 class LoadWeatherTest {
 
     private val rotterdam = "Rotterdam"
@@ -22,13 +25,15 @@ class LoadWeatherTest {
     private val weatherNotAvailable = null
 
     private val queryLengthValidator = QueryLengthValidator()
+    private val backgroundDispatcher = Dispatchers.Unconfined
 
     @Test
     fun noWeatherAvailable() {
         val location = "location"
         val weatherViewModel = WeatherViewModel(
             InMemoryWeatherRepository(emptyMap()),
-            queryLengthValidator
+            queryLengthValidator,
+            backgroundDispatcher
         )
 
         weatherViewModel.fetchWeatherFor(location)
@@ -46,7 +51,8 @@ class LoadWeatherTest {
         )
         val weatherViewModel = WeatherViewModel(
             InMemoryWeatherRepository(weatherForLocation),
-            queryLengthValidator
+            queryLengthValidator,
+            backgroundDispatcher
         )
 
         weatherViewModel.fetchWeatherFor(rotterdam)
@@ -64,7 +70,8 @@ class LoadWeatherTest {
         )
         val weatherViewModel = WeatherViewModel(
             InMemoryWeatherRepository(weatherForLocation),
-            queryLengthValidator
+            queryLengthValidator,
+            backgroundDispatcher
         )
 
         weatherViewModel.fetchWeatherFor(berlin)
@@ -82,7 +89,8 @@ class LoadWeatherTest {
         )
         val weatherViewModel = WeatherViewModel(
             InMemoryWeatherRepository(weatherForLocation),
-            queryLengthValidator
+            queryLengthValidator,
+            backgroundDispatcher
         )
 
         weatherViewModel.fetchWeatherFor(london)

@@ -7,7 +7,7 @@ class InMemoryWeatherRepository(
     private val weatherForLocation: Map<String, WeatherData?>
 ) : WeatherRepository {
 
-    override fun loadWeatherFor(location: String): WeatherResult {
+    override suspend fun loadWeatherFor(location: String): WeatherResult {
         return if (weatherForLocation.containsKey(location)) {
             val weatherData = weatherForLocation[location]
             if (weatherData == null) WeatherResult.Error else WeatherResult.Loaded(weatherData)
