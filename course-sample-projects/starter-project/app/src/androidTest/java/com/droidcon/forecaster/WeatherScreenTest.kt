@@ -146,4 +146,20 @@ class WeatherScreenTest {
         val idleLabel = context.getString(R.string.idle_weather_state)
         composeTestRule.onNodeWithText(idleLabel).assertIsDisplayed()
     }
+
+    @Test
+    fun locationUnavailable() {
+        composeTestRule.setContent {
+            ForecasterTheme {
+                WeatherScreenContent(
+                    modifier = Modifier.fillMaxSize(),
+                    weatherScreenState = WeatherScreenState(isWeatherUnavailable = true),
+                    onNewSearch = {}
+                )
+            }
+        }
+
+        val locationUnavailableError = context.getString(R.string.location_unavailable_error)
+        composeTestRule.onNodeWithText(locationUnavailableError).assertIsDisplayed()
+    }
 }

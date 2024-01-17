@@ -5,4 +5,5 @@
     <string name="cd_loading_indicator">Loading</string>
     <string name="bad_query_error">Invalid query. Type min 3 chars</string>
     <string name="idle_weather_state">Start of by entering a location in the search box</string>
+    <string name="location_unavailable_error">No weather data available for the location. Try again.</string>
 </resources>

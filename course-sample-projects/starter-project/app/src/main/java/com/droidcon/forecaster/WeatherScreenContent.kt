@@ -77,7 +77,8 @@ fun WeatherScreenContent(
                 null -> NoWeatherInformation(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 16.dp),
+                    isUnavailable = weatherScreenState.isWeatherUnavailable
                 )
                 else -> WeatherInformation(weatherData = weatherScreenState.weatherData)
             }
@@ -95,14 +96,23 @@ fun WeatherScreenContent(
 
 @Composable
 private fun NoWeatherInformation(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isUnavailable: Boolean
 ) {
     Column(modifier = modifier) {
-        Text(
-            text = stringResource(id = R.string.idle_weather_state),
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center
-        )
+        if (isUnavailable) {
+            Text(
+                text = stringResource(id = R.string.location_unavailable_error),
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
+            )
+        } else {
+            Text(
+                text = stringResource(id = R.string.idle_weather_state),
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
@@ -234,6 +244,17 @@ private fun PreviewWeatherScreenIdle() {
     ForecasterTheme {
         WeatherScreenContent(
             weatherScreenState = WeatherScreenState(),
+            onNewSearch = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewWeatherScreenUnavailable() {
+    ForecasterTheme {
+        WeatherScreenContent(
+            weatherScreenState = WeatherScreenState(isWeatherUnavailable = true),
             onNewSearch = {}
         )
     }
