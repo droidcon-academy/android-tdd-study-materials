@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -22,7 +23,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.test.platform.app.InstrumentationRegistry
 import com.droidcon.forecaster.data.WeatherData
 import com.droidcon.forecaster.state.WeatherScreenState
@@ -85,6 +88,21 @@ class WeatherScreenTest {
         composeTestRule.onNodeWithText(weatherData.region).assertIsDisplayed()
     }
 
+    @Test
+    fun temperatureData() {
+        composeTestRule.setContent {
+            ForecasterTheme {
+                WeatherScreenContent(
+                    modifier = Modifier.fillMaxSize(),
+                    weatherScreenState = WeatherScreenState(weatherData = weatherData)
+                )
+            }
+        }
+
+        composeTestRule.onNodeWithText(weatherData.temperature.toString()).assertIsDisplayed()
+        composeTestRule.onNodeWithText(weatherData.description).assertIsDisplayed()
+        composeTestRule.onNodeWithText(weatherData.feelsLike.toString()).assertIsDisplayed()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -127,6 +145,42 @@ fun WeatherScreenContent(
                         )
                     }
                     Text(text = weatherData.region)
+                    Box {
+                        Text(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(horizontal = 12.dp),
+                            text = weatherData.temperature.toString(),
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontSize = 164.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = .6f)
+                        )
+                        Text(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(top = 32.dp),
+                            text = "C",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = .6f)
+                        )
+                    }
+                    Row {
+                        Text(
+                            text = weatherData.description,
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                        Text(
+                            text = " | ",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                        Text(
+                            text = stringResource(R.string.feels_like_template, weatherData.feelsLike),
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(64.dp))
                 }
             }
         }

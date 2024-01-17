@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Forecaster</string>
+    <string name="feels_like_template">Feels like %1$s</string>
 </resources>
