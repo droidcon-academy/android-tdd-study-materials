@@ -33,6 +33,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,8 +73,13 @@ fun WeatherScreenContent(
                 onNewSearch = onNewSearch,
                 isBadQuery = weatherScreenState.isBadQuery
             )
-            weatherScreenState.weatherData?.let { weatherData ->
-                WeatherInformation(weatherData = weatherData)
+            when (weatherScreenState.weatherData) {
+                null -> NoWeatherInformation(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
+                else -> WeatherInformation(weatherData = weatherScreenState.weatherData)
             }
             AnimatedVisibility(visible = weatherScreenState.isLoading) {
                 val loadingDescription = stringResource(id = R.string.cd_loading_indicator)
@@ -84,6 +90,19 @@ fun WeatherScreenContent(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun NoWeatherInformation(
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(id = R.string.idle_weather_state),
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -204,6 +223,17 @@ private fun PreviewWeatherScreenContentLoading() {
     ForecasterTheme {
         WeatherScreenContent(
             weatherScreenState = WeatherScreenState(isLoading = true),
+            onNewSearch = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewWeatherScreenIdle() {
+    ForecasterTheme {
+        WeatherScreenContent(
+            weatherScreenState = WeatherScreenState(),
             onNewSearch = {}
         )
     }

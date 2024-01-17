@@ -130,4 +130,20 @@ class WeatherScreenTest {
         val badQueryError = context.getString(R.string.bad_query_error)
         composeTestRule.onNodeWithText(badQueryError).assertIsDisplayed()
     }
+
+    @Test
+    fun idleScreenState() {
+        composeTestRule.setContent {
+            ForecasterTheme {
+                WeatherScreenContent(
+                    modifier = Modifier.fillMaxSize(),
+                    weatherScreenState = WeatherScreenState(),
+                    onNewSearch = {}
+                )
+            }
+        }
+
+        val idleLabel = context.getString(R.string.idle_weather_state)
+        composeTestRule.onNodeWithText(idleLabel).assertIsDisplayed()
+    }
 }
