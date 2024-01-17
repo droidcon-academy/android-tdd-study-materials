@@ -6,7 +6,7 @@ import retrofit2.http.Query
 
 interface WeatherApi {
 
-    @GET("/current?access_key=somekey")
+    @GET("/current?")
     suspend fun fetchWeatherForLocation(
         @Query("query") query: String
     ): WeatherResponse
