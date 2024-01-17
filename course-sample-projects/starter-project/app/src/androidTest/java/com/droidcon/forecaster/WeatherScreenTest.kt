@@ -11,12 +11,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -24,6 +30,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.platform.app.InstrumentationRegistry
@@ -63,7 +70,7 @@ class WeatherScreenTest {
                 WeatherScreenContent(
                     modifier = Modifier.fillMaxSize(),
                     weatherScreenState = WeatherScreenState(weatherData = weatherData)
-                )
+                ) {}
             }
         }
 
@@ -79,7 +86,7 @@ class WeatherScreenTest {
                 WeatherScreenContent(
                     modifier = Modifier.fillMaxSize(),
                     weatherScreenState = WeatherScreenState(weatherData = weatherData)
-                )
+                ) {}
             }
         }
 
@@ -95,7 +102,7 @@ class WeatherScreenTest {
                 WeatherScreenContent(
                     modifier = Modifier.fillMaxSize(),
                     weatherScreenState = WeatherScreenState(weatherData = weatherData)
-                )
+                ) {}
             }
         }
 
@@ -103,13 +110,29 @@ class WeatherScreenTest {
         composeTestRule.onNodeWithText(weatherData.description).assertIsDisplayed()
         composeTestRule.onNodeWithText(weatherData.feelsLike.toString()).assertIsDisplayed()
     }
+
+    @Test
+    fun searchBox() {
+        composeTestRule.setContent {
+            ForecasterTheme {
+                WeatherScreenContent(
+                    modifier = Modifier.fillMaxSize(),
+                    weatherScreenState = WeatherScreenState(weatherData = weatherData)
+                ) {}
+            }
+        }
+
+        val typeLocation = context.getString(R.string.search_hint)
+        composeTestRule.onNodeWithText(typeLocation).assertIsDisplayed()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherScreenContent(
     modifier: Modifier = Modifier,
-    weatherScreenState: WeatherScreenState
+    weatherScreenState: WeatherScreenState,
+    onNewSearch: (value: String) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
@@ -132,6 +155,14 @@ fun WeatherScreenContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                val query by remember { mutableStateOf("") }
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = {},
+                    label = { Text(text = stringResource(id = R.string.search_hint))},
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(onSearch = { onNewSearch(query) })
+                )
                 weatherScreenState.weatherData?.let { weatherData ->
                     Row {
                         Text(
