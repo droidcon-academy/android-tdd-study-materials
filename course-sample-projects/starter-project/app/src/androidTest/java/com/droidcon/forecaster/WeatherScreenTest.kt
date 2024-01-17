@@ -115,4 +115,19 @@ class WeatherScreenTest {
         composeTestRule.onNodeWithContentDescription(loadingContentDescription)
             .assertIsDisplayed()
     }
+
+    @Test
+    fun badQueryError() {
+        composeTestRule.setContent {
+            ForecasterTheme {
+                WeatherScreenContent(
+                    modifier = Modifier.fillMaxSize(),
+                    weatherScreenState = WeatherScreenState(isBadQuery = true)
+                ) {}
+            }
+        }
+
+        val badQueryError = context.getString(R.string.bad_query_error)
+        composeTestRule.onNodeWithText(badQueryError).assertIsDisplayed()
+    }
 }

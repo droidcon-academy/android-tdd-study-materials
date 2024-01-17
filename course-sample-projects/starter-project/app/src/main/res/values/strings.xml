@@ -3,4 +3,5 @@
     <string name="feels_like_template">Feels like %1$s</string>
     <string name="search_hint">Enter location</string>
     <string name="cd_loading_indicator">Loading</string>
+    <string name="bad_query_error">Invalid query. Type min 3 chars</string>
 </resources>

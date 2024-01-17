@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -68,7 +69,8 @@ fun WeatherScreenContent(
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                onNewSearch = onNewSearch
+                onNewSearch = onNewSearch,
+                isBadQuery = weatherScreenState.isBadQuery
             )
             weatherScreenState.weatherData?.let { weatherData ->
                 WeatherInformation(weatherData = weatherData)
@@ -152,15 +154,22 @@ private fun WeatherInformation(
 @Composable
 private fun SearchBox(
     modifier: Modifier = Modifier,
+    isBadQuery: Boolean,
     onNewSearch: (value: String) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    val query by remember { mutableStateOf("") }
+    var query by remember { mutableStateOf("") }
     OutlinedTextField(
         modifier = modifier,
         value = query,
-        onValueChange = {},
+        onValueChange = { query = it },
+        isError = isBadQuery,
         label = { Text(text = stringResource(id = R.string.search_hint)) },
+        supportingText = {
+           if (isBadQuery) {
+               Text(text = stringResource(id = R.string.bad_query_error))
+           }
+        },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = {
             focusManager.clearFocus()
