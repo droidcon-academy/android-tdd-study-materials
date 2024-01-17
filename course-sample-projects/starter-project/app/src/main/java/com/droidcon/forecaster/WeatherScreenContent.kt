@@ -1,5 +1,6 @@
 package com.droidcon.forecaster
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -24,7 +26,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,77 +63,110 @@ fun WeatherScreenContent(
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
-            val query by remember { mutableStateOf("") }
-            OutlinedTextField(
-                modifier = Modifier.align(Alignment.TopCenter)
+            SearchBox(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = query,
-                onValueChange = {},
-                label = { Text(text = stringResource(id = R.string.search_hint)) },
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { onNewSearch(query) })
+                onNewSearch = onNewSearch
             )
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                weatherScreenState.weatherData?.let { weatherData ->
-                    Row {
-                        Text(
-                            text = weatherData.city,
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                        Spacer(modifier = Modifier.width(24.dp))
-                        Text(
-                            text = weatherData.country,
-                            style = MaterialTheme.typography.headlineSmall
-                        )
+            weatherScreenState.weatherData?.let { weatherData ->
+                WeatherInformation(weatherData = weatherData)
+            }
+            AnimatedVisibility(visible = weatherScreenState.isLoading) {
+                val loadingDescription = stringResource(id = R.string.cd_loading_indicator)
+                CircularProgressIndicator(
+                    modifier = Modifier.semantics {
+                        contentDescription = loadingDescription
                     }
-                    Text(text = weatherData.region)
-                    Box {
-                        Text(
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .padding(horizontal = 12.dp),
-                            text = weatherData.temperature.toString(),
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontSize = 164.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = .6f)
-                        )
-                        Text(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(top = 32.dp),
-                            text = "C",
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = .6f)
-                        )
-                    }
-                    Row {
-                        Text(
-                            text = weatherData.description,
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                        Text(
-                            text = " | ",
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                        Text(
-                            text = stringResource(
-                                R.string.feels_like_template,
-                                weatherData.feelsLike
-                            ),
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(64.dp))
-                }
+                )
             }
         }
     }
+}
+
+@Composable
+private fun WeatherInformation(
+    modifier: Modifier = Modifier,
+    weatherData: WeatherData
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Row {
+            Text(
+                text = weatherData.city,
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Spacer(modifier = Modifier.width(24.dp))
+            Text(
+                text = weatherData.country,
+                style = MaterialTheme.typography.headlineSmall
+            )
+        }
+        Text(text = weatherData.region)
+        Box {
+            Text(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = 12.dp),
+                text = weatherData.temperature.toString(),
+                style = MaterialTheme.typography.headlineLarge,
+                fontSize = 164.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = .6f)
+            )
+            Text(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 32.dp),
+                text = "C",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = .6f)
+            )
+        }
+        Row {
+            Text(
+                text = weatherData.description,
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(
+                text = " | ",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            Text(
+                text = stringResource(
+                    R.string.feels_like_template,
+                    weatherData.feelsLike
+                ),
+                style = MaterialTheme.typography.headlineSmall
+            )
+        }
+        Spacer(modifier = Modifier.height(64.dp))
+    }
+}
+
+@Composable
+private fun SearchBox(
+    modifier: Modifier = Modifier,
+    onNewSearch: (value: String) -> Unit
+) {
+    val focusManager = LocalFocusManager.current
+    val query by remember { mutableStateOf("") }
+    OutlinedTextField(
+        modifier = modifier,
+        value = query,
+        onValueChange = {},
+        label = { Text(text = stringResource(id = R.string.search_hint)) },
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        keyboardActions = KeyboardActions(onSearch = {
+            focusManager.clearFocus()
+            onNewSearch(query)
+        })
+    )
 }
 
 @Preview
@@ -146,6 +184,17 @@ private fun PreviewWeatherScreenContent() {
     ForecasterTheme {
         WeatherScreenContent(
             weatherScreenState = WeatherScreenState(weatherData = weatherInRotterdam),
+            onNewSearch = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewWeatherScreenContentLoading() {
+    ForecasterTheme {
+        WeatherScreenContent(
+            weatherScreenState = WeatherScreenState(isLoading = true),
             onNewSearch = {}
         )
     }

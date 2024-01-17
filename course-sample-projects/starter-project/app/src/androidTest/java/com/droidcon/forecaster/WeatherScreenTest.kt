@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.platform.app.InstrumentationRegistry
 import com.droidcon.forecaster.data.WeatherData
@@ -97,5 +98,21 @@ class WeatherScreenTest {
 
         val typeLocation = context.getString(R.string.search_hint)
         composeTestRule.onNodeWithText(typeLocation).assertIsDisplayed()
+    }
+
+    @Test
+    fun loadingIndicator() {
+        composeTestRule.setContent {
+            ForecasterTheme {
+                WeatherScreenContent(
+                    modifier = Modifier.fillMaxSize(),
+                    weatherScreenState = WeatherScreenState(isLoading = true)
+                ) {}
+            }
+        }
+
+        val loadingContentDescription = context.getString(R.string.cd_loading_indicator)
+        composeTestRule.onNodeWithContentDescription(loadingContentDescription)
+            .assertIsDisplayed()
     }
 }
