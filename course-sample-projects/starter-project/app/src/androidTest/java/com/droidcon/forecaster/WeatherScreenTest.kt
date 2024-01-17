@@ -162,4 +162,20 @@ class WeatherScreenTest {
         val locationUnavailableError = context.getString(R.string.location_unavailable_error)
         composeTestRule.onNodeWithText(locationUnavailableError).assertIsDisplayed()
     }
+
+    @Test
+    fun locationLoadingError() {
+        composeTestRule.setContent {
+            ForecasterTheme {
+                WeatherScreenContent(
+                    modifier = Modifier.fillMaxSize(),
+                    weatherScreenState = WeatherScreenState(isWeatherLoadingError = true),
+                    onNewSearch = {}
+                )
+            }
+        }
+
+        val locationLoadingError = context.getString(R.string.location_loading_error)
+        composeTestRule.onNodeWithText(locationLoadingError).assertIsDisplayed()
+    }
 }

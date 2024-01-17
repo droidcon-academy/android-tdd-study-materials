@@ -78,8 +78,10 @@ fun WeatherScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    isUnavailable = weatherScreenState.isWeatherUnavailable
+                    isUnavailable = weatherScreenState.isWeatherUnavailable,
+                    isLoadingError = weatherScreenState.isWeatherLoadingError
                 )
+
                 else -> WeatherInformation(weatherData = weatherScreenState.weatherData)
             }
             AnimatedVisibility(visible = weatherScreenState.isLoading) {
@@ -97,12 +99,19 @@ fun WeatherScreenContent(
 @Composable
 private fun NoWeatherInformation(
     modifier: Modifier = Modifier,
-    isUnavailable: Boolean
+    isUnavailable: Boolean,
+    isLoadingError: Boolean
 ) {
     Column(modifier = modifier) {
         if (isUnavailable) {
             Text(
                 text = stringResource(id = R.string.location_unavailable_error),
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
+            )
+        } else if (isLoadingError) {
+            Text(
+                text = stringResource(id = R.string.location_loading_error),
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center
             )
@@ -195,9 +204,9 @@ private fun SearchBox(
         isError = isBadQuery,
         label = { Text(text = stringResource(id = R.string.search_hint)) },
         supportingText = {
-           if (isBadQuery) {
-               Text(text = stringResource(id = R.string.bad_query_error))
-           }
+            if (isBadQuery) {
+                Text(text = stringResource(id = R.string.bad_query_error))
+            }
         },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = {
@@ -255,6 +264,16 @@ private fun PreviewWeatherScreenUnavailable() {
     ForecasterTheme {
         WeatherScreenContent(
             weatherScreenState = WeatherScreenState(isWeatherUnavailable = true),
+            onNewSearch = {}
+        )
+    }
+}
+@Preview
+@Composable
+private fun PreviewWeatherScreenLoadingError() {
+    ForecasterTheme {
+        WeatherScreenContent(
+            weatherScreenState = WeatherScreenState(isWeatherLoadingError = true),
             onNewSearch = {}
         )
     }
